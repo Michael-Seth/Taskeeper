@@ -2,22 +2,28 @@ package database
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/Michael-Seth/taskeeper/pkg/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 // Connect establishes a connection to the PostgreSQL database using environment variables.
 func Connect() (*gorm.DB, error) {
-	// Using environment variables for the connection string
+	// Load configuration
+	cfg, err := config.NewConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %v", err)
+	}
+
+	// Using the loaded config to build the connection string
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"),     // DB host (database)
-		os.Getenv("DB_USER"),     // DB user (postgres)
-		os.Getenv("DB_PASSWORD"), // DB password (postgres)
-		os.Getenv("DB_NAME"),     // DB name (taskeeper)
-		os.Getenv("DB_PORT"),     // DB port (5432)
+		cfg.PG.Host,     // DB host
+		cfg.PG.User,     // DB user
+		cfg.PG.Password, // DB password
+		cfg.PG.Database, // DB name
+		cfg.PG.Port,     // DB port
 	)
 
 	// Connect to the database
