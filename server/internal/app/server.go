@@ -5,33 +5,41 @@ import (
 	"log"
 	"os"
 
+	"github.com/Michael-Seth/taskeeper/internal/domain/repositories" // Import TaskUseCase
 	"github.com/Michael-Seth/taskeeper/internal/infrastructure/database"
 	"github.com/Michael-Seth/taskeeper/internal/seeds"
 	"github.com/gin-gonic/gin"
 )
 
-func Run(ctx context.Context) error {
-	// Connect to the database (without saving the db variable)
-	_, err := database.Connect()
+// RunWithRouter starts the application with the provided Gin router.
+func RunWithRouter(ctx context.Context, router *gin.Engine) error {
+	// Connect to the database
+	db, err := database.Connect()
 	if err != nil {
 		return err
 	}
 
+	// Check if the app was called with the "seed" argument
 	if len(os.Args) > 1 && os.Args[1] == "seed" {
 		// Seed tasks
 		if err := seeds.SeedTasks(); err != nil {
 			log.Fatalf("Error seeding tasks: %v", err)
-			return err // Return error here if seeding fails
+			return err // Return error if seeding fails
 		}
 		log.Println("Seeding completed!")
 		return nil // Return nil after successful seeding
 	}
 
-	// Initialize the Gin router
-	router := gin.Default()
+	taskRepo := repositories.NewTaskRepository(db)   // Inject DB into repository
+	taskUseCase := usecases.NewTaskUseCase(taskRepo) // Inject repo into use case
+
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "OK"})
 	})
+
+	// Set up API routes (e.g., /api/v1/tasks)
+	api := router.Group("/api/v1")
+	router.SetupTaskRoutes(api, taskUseCase)
 
 	// Channel to listen for server errors
 	serverErr := make(chan error, 1)

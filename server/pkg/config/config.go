@@ -30,7 +30,8 @@ type PG struct {
 
 // LoadEnv loads environment variables from the .env file if present.
 func LoadEnv() {
-	if err := godotenv.Load(); err != nil {
+	envFilePath := "../.env" // One level up from cmd/ folder to reach server/.env
+	if err := godotenv.Load(envFilePath); err != nil {
 		log.Println("No .env file found, using system environment variables")
 	}
 }
@@ -51,9 +52,33 @@ func NewConfig() (*Config, error) {
 	cfg.PG.Database = os.Getenv("DB_NAME")
 	cfg.PG.Port = os.Getenv("DB_PORT")
 
-	// Ensure that all required fields are populated
-	if cfg.App.Name == "" || cfg.App.Version == "" || cfg.PG.Host == "" || cfg.PG.User == "" || cfg.PG.Password == "" || cfg.PG.Database == "" || cfg.PG.Port == "" {
-		return nil, fmt.Errorf("missing required environment variables")
+	// Check for missing variables and log them
+	missingVars := []string{}
+	if cfg.App.Name == "" {
+		missingVars = append(missingVars, "APP_NAME")
+	}
+	if cfg.App.Version == "" {
+		missingVars = append(missingVars, "APP_VERSION")
+	}
+	if cfg.PG.Host == "" {
+		missingVars = append(missingVars, "DB_HOST")
+	}
+	if cfg.PG.User == "" {
+		missingVars = append(missingVars, "DB_USER")
+	}
+	if cfg.PG.Password == "" {
+		missingVars = append(missingVars, "DB_PASSWORD")
+	}
+	if cfg.PG.Database == "" {
+		missingVars = append(missingVars, "DB_NAME")
+	}
+	if cfg.PG.Port == "" {
+		missingVars = append(missingVars, "DB_PORT")
+	}
+
+	// If any variables are missing, return an error
+	if len(missingVars) > 0 {
+		return nil, fmt.Errorf("missing required environment variables: %v", missingVars)
 	}
 
 	return cfg, nil
