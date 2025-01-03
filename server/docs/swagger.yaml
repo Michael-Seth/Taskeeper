@@ -1,4 +1,16 @@
+basePath: /
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://example.com/contact
+  description: This is a structured API documentation for Taskeeper.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://example.com/terms/
+  title: Taskeeper API
+  version: "1.0"
 paths: {}
 swagger: "2.0"

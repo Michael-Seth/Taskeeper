@@ -30,9 +30,10 @@ type PG struct {
 
 // LoadEnv loads environment variables from the .env file if present.
 func LoadEnv() {
-	envFilePath := "../.env" // One level up from cmd/ folder to reach server/.env
+	envFilePath := ".env" // One level up from cmd/ folder to reach server/.env
 	if err := godotenv.Load(envFilePath); err != nil {
 		log.Println("No .env file found, using system environment variables")
+		log.Printf("Error loading .env file from %s: %v\n", envFilePath, err)
 	}
 }
 

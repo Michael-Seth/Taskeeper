@@ -5,14 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/Michael-Seth/taskeeper/internal/domain/repositories" // Import TaskUseCase
-	"github.com/Michael-Seth/taskeeper/internal/infrastructure/database"
-	"github.com/Michael-Seth/taskeeper/internal/seeds"
+	"github.com/Michael-Seth/taskeeper/internal/app/router"              // Correct import for router
+	"github.com/Michael-Seth/taskeeper/internal/domain/repositories"     // Import repositories
+	"github.com/Michael-Seth/taskeeper/internal/infrastructure/database" // Import database connection
+	"github.com/Michael-Seth/taskeeper/internal/seeds"                   // Import seeds
 	"github.com/gin-gonic/gin"
 )
 
 // RunWithRouter starts the application with the provided Gin router.
-func RunWithRouter(ctx context.Context, router *gin.Engine) error {
+func RunWithRouter(ctx context.Context, engine *gin.Engine) error {
 	// Connect to the database
 	db, err := database.Connect()
 	if err != nil {
@@ -30,16 +31,20 @@ func RunWithRouter(ctx context.Context, router *gin.Engine) error {
 		return nil // Return nil after successful seeding
 	}
 
-	taskRepo := repositories.NewTaskRepository(db)   // Inject DB into repository
-	taskUseCase := usecases.NewTaskUseCase(taskRepo) // Inject repo into use case
+	// Initialize the TaskRepository
+	taskRepo := repositories.NewTaskRepository(db)
 
-	router.GET("/health", func(c *gin.Context) {
+	// Create the BaseRepository
+	baseRepo := repositories.NewBaseRepository(taskRepo)
+
+	// Set up health check endpoint
+	engine.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "OK"})
 	})
 
-	// Set up API routes (e.g., /api/v1/tasks)
-	api := router.Group("/api/v1")
-	router.SetupTaskRoutes(api, taskUseCase)
+	// Set up API routes using BaseRepository
+	api := engine.Group("/api/v1")
+	router.SetupRoutes(api, baseRepo) // Centralize route setup with BaseRepository
 
 	// Channel to listen for server errors
 	serverErr := make(chan error, 1)
@@ -47,7 +52,7 @@ func RunWithRouter(ctx context.Context, router *gin.Engine) error {
 	// Start the server in a goroutine
 	go func() {
 		log.Println("Server is running on port 8080")
-		serverErr <- router.Run(":8080") // Start the server and send any errors to the channel
+		serverErr <- engine.Run(":8080") // Start the server and send any errors to the channel
 	}()
 
 	// Wait for either context cancellation or server error
