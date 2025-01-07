@@ -1,4 +1,30 @@
 basePath: /
+definitions:
+  entities.Task:
+    description: A task with a title, description, completion status, and due date
+    properties:
+      completed:
+        description: '@Description Status if the task is completed.'
+        type: boolean
+      description:
+        description: '@Description A brief description of the task.'
+        type: string
+      due_date:
+        description: '@Description The due date of the task.'
+        type: string
+      id:
+        description: '@Description The unique identifier of the task.'
+        type: integer
+      status:
+        description: '@Description The status of the task.'
+        type: string
+      title:
+        description: '@Description The title of the task.'
+        type: string
+      user_id:
+        description: '@Description The ID of the user associated with the task.'
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -12,5 +38,59 @@ info:
   termsOfService: http://example.com/terms/
   title: Taskeeper API
   version: "1.0"
-paths: {}
+paths:
+  /api/v1/tasks/:
+    get:
+      description: Fetch all tasks from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Task'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Retrieve all tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task with the provided details
+      parameters:
+      - description: Task details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Task'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new task
+      tags:
+      - tasks
 swagger: "2.0"

@@ -6,13 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRoutes sets up all API routes with the given BaseRepository.
+// SetupRoutes sets up all API routes for tasks.
 // @Summary Setup API routes for tasks
 // @Description Defines routes for creating and fetching tasks
 // @Tags tasks
-// @Param api body gin.RouterGroup true "API Routes"
-// @Router /api/v1/tasks/ [post]
-// @Router /api/v1/tasks/ [get]
 func SetupRoutes(api *gin.RouterGroup, repo repositories.BaseRepository) {
 	// Initialize the TaskHandler with the TaskRepository
 	taskHandler := handlers.NewTaskHandler(repo.Task()) // Use TaskRepository from BaseRepository

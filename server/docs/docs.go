@@ -23,7 +23,126 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/api/v1/tasks/": {
+            "get": {
+                "description": "Fetch all tasks from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Retrieve all tasks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entities.Task"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new task with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Create a new task",
+                "parameters": [
+                    {
+                        "description": "Task details",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entities.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.Task": {
+            "description": "A task with a title, description, completion status, and due date",
+            "type": "object",
+            "properties": {
+                "completed": {
+                    "description": "@Description Status if the task is completed.",
+                    "type": "boolean"
+                },
+                "description": {
+                    "description": "@Description A brief description of the task.",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "@Description The due date of the task.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "@Description The unique identifier of the task.",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "@Description The status of the task.",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "@Description The title of the task.",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "@Description The ID of the user associated with the task.",
+                    "type": "integer"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

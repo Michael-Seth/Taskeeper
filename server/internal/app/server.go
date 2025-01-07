@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	// _ "github.com/Michael-Seth/taskeeper/docs"                           // Import Swagger docs package
 	"github.com/Michael-Seth/taskeeper/internal/app/router"              // Correct import for router
 	"github.com/Michael-Seth/taskeeper/internal/domain/repositories"     // Import repositories
 	"github.com/Michael-Seth/taskeeper/internal/infrastructure/database" // Import database connection
@@ -37,7 +38,13 @@ func RunWithRouter(ctx context.Context, engine *gin.Engine) error {
 	// Create the BaseRepository
 	baseRepo := repositories.NewBaseRepository(taskRepo)
 
-	// Set up health check endpoint
+	// @Summary Test App Health
+	// @Description Test health app status
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} map[string]string
+	// @Failure 500 {object} map[string]string
+	// @Router /health [get]
 	engine.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "OK"})
 	})
